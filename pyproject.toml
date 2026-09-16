@@ -9,6 +9,7 @@ description = "Aplicacion PyShiny para explorar, auditar y operar la memoria inv
 requires-python = ">=3.11"
 dependencies = [
     "shiny==1.8.0",
+    "python-dotenv>=1.0,<2.0",
 ]
 
 [project.optional-dependencies]
