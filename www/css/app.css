@@ -1,0 +1,16 @@
+html,
+body {
+    min-height: 100%;
+}
+
+.memory-page {
+    padding: 1rem;
+}
+
+.memory-page > h2 {
+    margin-bottom: 0.25rem;
+}
+
+.memory-page .card {
+    margin-bottom: 1rem;
+}
