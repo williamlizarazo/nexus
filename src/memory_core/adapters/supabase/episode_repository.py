@@ -94,6 +94,66 @@ class SupabaseEpisodeRepository:
             updated_at=_str_to_datetime(row["updated_at"]),
         )
 
+    def list_episodes(
+        self,
+        scope_type: str | None = None,
+        scope_id: str | None = None,
+        actor_id: str | None = None,
+        status: str | None = None,
+        limit: int = 500,
+    ) -> list[ResearchEpisode]:
+
+        query = (
+            self.client
+            .table("research_episodes")
+            .select("*")
+        )
+
+        if scope_type:
+            query = query.eq("scope_type", scope_type)
+
+        if scope_id:
+            query = query.eq("scope_id", scope_id)
+
+        if actor_id:
+            query = query.eq("actor_id", actor_id)
+
+        if status:
+            query = query.eq("status", status)
+
+        response = (
+            query
+            .order("started_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+
+        return [
+            ResearchEpisode(
+                episode_id=row["episode_id"],
+                scope_type=row["scope_type"],
+                scope_id=row["scope_id"],
+                actor_id=row.get("actor_id"),
+                started_at=_str_to_datetime(
+                    row["started_at"]
+                ),
+                ended_at=_str_to_datetime(
+                    row.get("ended_at")
+                ),
+                status=row["status"],
+                grouping_version=row["grouping_version"],
+                schema_version=row["schema_version"],
+                metadata=row.get("metadata_json") or {},
+                created_at=_str_to_datetime(
+                    row["created_at"]
+                ),
+                updated_at=_str_to_datetime(
+                    row["updated_at"]
+                ),
+            )
+            for row in response.data
+        ]
+
     # ============================================================
     # ITEMS
     # ============================================================

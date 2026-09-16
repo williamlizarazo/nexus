@@ -21,6 +21,16 @@ class EpisodeRepository(Protocol):
     ) -> ResearchEpisode | None:
         ...
 
+    def list_episodes(
+        self,
+        scope_type: str | None = None,
+        scope_id: str | None = None,
+        actor_id: str | None = None,
+        status: str | None = None,
+        limit: int = 500,
+    ) -> list[ResearchEpisode]:
+        ...
+
     def add_item(
         self,
         item: ResearchEpisodeItem,
