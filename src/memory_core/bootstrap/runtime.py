@@ -8,6 +8,9 @@ from memory_core.contracts.episode_repository import (
 from memory_core.contracts.research_activity_source import (
     ResearchActivitySource,
 )
+from memory_core.contracts.research_project_source import (
+    ResearchProjectSource,
+)
 from memory_core.organization import (
     OrganizationDirectoryRepository,
 )
@@ -24,3 +27,4 @@ class MemoryRuntime:
     episode_repository: EpisodeRepository
     research_activity_source: ResearchActivitySource
     organization_directory_repository: OrganizationDirectoryRepository | None = None
+    research_project_source: ResearchProjectSource | None = None

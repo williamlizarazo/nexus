@@ -11,6 +11,9 @@ from memory_core.adapters.supabase.episode_repository import (
 from memory_core.adapters.supabase.research_activity_source import (
     SupabaseResearchActivitySource,
 )
+from memory_core.adapters.supabase.research_project_source import (
+    SupabaseResearchProjectSource,
+)
 from memory_core.bootstrap.runtime import MemoryRuntime
 from memory_core.organization.adapters.supabase import (
     SupabaseOrganizationDirectoryRepository,
@@ -81,5 +84,8 @@ def build_memory_runtime_from_env(
         ),
         organization_directory_repository=(
             SupabaseOrganizationDirectoryRepository(client)
+        ),
+        research_project_source=(
+            SupabaseResearchProjectSource(client)
         ),
     )
