@@ -4,30 +4,37 @@ from shiny import ui
 
 from modules.diagnostics.ui import diagnostics_ui
 from modules.episodic.ui import episodic_ui
-from modules.overview.ui import overview_ui
+from modules.research_dashboard.ui import (
+    research_dashboard_ui,
+)
 
 
 APP_DIR = Path(__file__).resolve().parent
 
 
-global_sidebar = ui.sidebar(
-    ui.h5("Contexto global"),
+episodic_sidebar = ui.sidebar(
+    ui.h5("Contexto de memoria"),
     ui.input_select(
         "project_id",
         "Proyecto",
-        choices={"": "Sin conectar"},
+        choices={
+            "": "Cargando proyectos..."
+        },
         selected="",
     ),
     ui.input_select(
         "actor_id",
         "Actor",
-        choices={"": "Todos"},
+        choices={
+            "": "Todos",
+        },
         selected="",
     ),
     ui.hr(),
     ui.h6("Sistema de memoria"),
-    ui.p("Fase 5 · appmemoria", class_="text-muted"),
-    ui.p("Infraestructura todavía no conectada.", class_="small text-muted"),
+    ui.output_text(
+        "global_memory_status"
+    ),
     open="desktop",
     width=300,
     resizable=True,
@@ -36,13 +43,16 @@ global_sidebar = ui.sidebar(
 
 app_ui = ui.page_navbar(
     ui.nav_panel(
-        "Visión general",
-        overview_ui("overview"),
-        value="overview",
+        "Panorama de investigación",
+        research_dashboard_ui(),
+        value="research_dashboard",
     ),
     ui.nav_panel(
         "Memoria episódica",
-        episodic_ui("episodic"),
+        ui.layout_sidebar(
+            episodic_sidebar,
+            episodic_ui("episodic"),
+        ),
         value="episodic",
     ),
     ui.nav_spacer(),
@@ -53,7 +63,12 @@ app_ui = ui.page_navbar(
     ),
     title="appmemoria",
     id="main_nav",
-    sidebar=global_sidebar,
+    selected="research_dashboard",
     fillable=True,
-    header=ui.include_css(APP_DIR / "www" / "css" / "app.css"),
+    header=ui.include_css(
+        APP_DIR
+        / "www"
+        / "css"
+        / "app.css"
+    ),
 )
