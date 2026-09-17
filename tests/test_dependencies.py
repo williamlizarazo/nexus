@@ -19,10 +19,12 @@ def test_build_dependencies_uses_memory_runtime(
 ):
     episode_repository = FakeEpisodeRepository()
     research_activity_source = FakeResearchActivitySource()
+    research_project_source = object()
 
     runtime = SimpleNamespace(
         episode_repository=episode_repository,
         research_activity_source=research_activity_source,
+        research_project_source=research_project_source,
     )
 
     monkeypatch.setattr(
@@ -50,6 +52,11 @@ def test_build_dependencies_uses_memory_runtime(
     assert (
         dependencies.research_activity_source
         is research_activity_source
+    )
+
+    assert (
+        dependencies.research_project_source
+        is research_project_source
     )
 
 
