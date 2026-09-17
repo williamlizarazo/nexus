@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 from collections.abc import Mapping
@@ -12,6 +12,9 @@ from memory_core.adapters.supabase.research_activity_source import (
     SupabaseResearchActivitySource,
 )
 from memory_core.bootstrap.runtime import MemoryRuntime
+from memory_core.organization.adapters.supabase import (
+    SupabaseOrganizationDirectoryRepository,
+)
 
 
 class MemoryRuntimeConfigurationError(RuntimeError):
@@ -75,5 +78,8 @@ def build_memory_runtime_from_env(
         ),
         research_activity_source=(
             SupabaseResearchActivitySource(client)
+        ),
+        organization_directory_repository=(
+            SupabaseOrganizationDirectoryRepository(client)
         ),
     )
