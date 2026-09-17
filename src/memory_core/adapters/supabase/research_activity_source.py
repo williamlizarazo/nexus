@@ -22,6 +22,28 @@ def _parse_datetime(value: str | None) -> datetime | None:
     )
 
 
+def _resolve_created_at(
+    row: dict,
+    *,
+    json_field: str,
+) -> datetime | None:
+    payload = row.get(json_field) or {}
+
+    if isinstance(payload, dict):
+        original_created_at = payload.get(
+            "created_at"
+        )
+
+        if original_created_at:
+            return _parse_datetime(
+                original_created_at
+            )
+
+    return _parse_datetime(
+        row.get("created_at")
+    )
+
+
 class SupabaseResearchActivitySource:
 
     def __init__(self, client: Client):
@@ -140,8 +162,9 @@ class SupabaseResearchActivitySource:
             result_count=row.get("result_count"),
             elapsed_ms=row.get("elapsed_ms"),
             payload=row.get("payload_json") or {},
-            created_at=_parse_datetime(
-                row.get("created_at")
+            created_at=_resolve_created_at(
+                row,
+                json_field="payload_json",
             ),
             updated_at=_parse_datetime(
                 row.get("updated_at")
@@ -178,8 +201,9 @@ class SupabaseResearchActivitySource:
             tags=row.get("tags") or [],
             status=row.get("status"),
             metadata=row.get("metadata_json") or {},
-            created_at=_parse_datetime(
-                row.get("created_at")
+            created_at=_resolve_created_at(
+                row,
+                json_field="metadata_json",
             ),
             updated_at=_parse_datetime(
                 row.get("updated_at")
@@ -239,8 +263,9 @@ class SupabaseResearchActivitySource:
                 ),
                 page_key=row.get("page_key"),
                 payload=row.get("payload_json") or {},
-                created_at=_parse_datetime(
-                    row.get("created_at")
+                created_at=_resolve_created_at(
+                    row,
+                    json_field="payload_json",
                 ),
             )
             for row in response.data
