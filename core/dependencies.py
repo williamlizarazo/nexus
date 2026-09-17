@@ -17,6 +17,7 @@ class AppDependencies:
 
     episode_repository: Any | None = None
     research_activity_source: Any | None = None
+    organization_directory_repository: Any | None = None
     vector_store: Any | None = None
     llm_provider: Any | None = None
     embedding_provider: Any | None = None
@@ -42,5 +43,10 @@ def build_dependencies(
         episode_repository=runtime.episode_repository,
         research_activity_source=(
             runtime.research_activity_source
+        ),
+        organization_directory_repository=getattr(
+            runtime,
+            "organization_directory_repository",
+            None,
         ),
     )
