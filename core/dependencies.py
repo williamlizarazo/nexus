@@ -39,8 +39,8 @@ def build_dependencies(
     """Build dependencies available to appmemoria."""
 
     authorization_service = AuthorizationService(
-        admin_emails=config.admin_emails,
-        viewer_emails=config.viewer_emails,
+        admin_emails=getattr(config, "admin_emails", ()),
+        viewer_emails=getattr(config, "viewer_emails", ()),
     )
 
     auth_provider = None
