@@ -74,3 +74,17 @@ def test_load_config_loads_local_environment(
     config_module.load_config()
 
     assert calls == [True]
+
+
+def test_load_config_reads_normalized_authorized_emails(monkeypatch):
+    monkeypatch.setattr(config_module, "load_local_env", lambda: True)
+    monkeypatch.setenv(
+        "APPMEMORIA_ADMIN_EMAILS",
+        " ADMIN@example.org, second@example.org ",
+    )
+    monkeypatch.setenv("APPMEMORIA_VIEWER_EMAILS", " viewer@example.org, ")
+
+    config = config_module.load_config()
+
+    assert config.admin_emails == ("admin@example.org", "second@example.org")
+    assert config.viewer_emails == ("viewer@example.org",)
