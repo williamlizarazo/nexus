@@ -27,9 +27,16 @@ def _is_privileged_api_key(api_key: str) -> bool:
             base64.urlsafe_b64decode(payload_part + padding).decode("utf-8")
         )
     except (binascii.Error, UnicodeDecodeError, ValueError, json.JSONDecodeError):
-        return False
+        return True
 
-    return payload.get("role") in {"service_role", "supabase_admin"}
+    if not isinstance(payload, dict):
+        return True
+
+    role = payload.get("role")
+    if not isinstance(role, str):
+        return True
+
+    return role in {"service_role", "supabase_admin"}
 
 
 class SupabaseAuthProvider:

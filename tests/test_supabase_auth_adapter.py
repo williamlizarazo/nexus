@@ -72,6 +72,24 @@ def test_provider_constructor_rejects_secret_key():
         )
 
 
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "W10",
+        "eyJyb2xlIjpbXX0",
+    ],
+)
+def test_builder_rejects_malformed_legacy_key(monkeypatch, payload):
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv(
+        "SUPABASE_PUBLISHABLE_KEY",
+        f"eyJhbGciOiJIUzI1NiJ9.{payload}.signature",
+    )
+
+    with pytest.raises(AuthProviderConfigurationError, match="clave pública"):
+        build_supabase_auth_provider_from_env()
+
+
 def test_authenticate_creates_a_fresh_client_per_attempt(monkeypatch):
     clients = []
 
