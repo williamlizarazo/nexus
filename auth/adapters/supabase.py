@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import base64
+import binascii
+import json
 import os
 
 from auth.models import AuthIdentity
@@ -9,8 +12,33 @@ class AuthProviderConfigurationError(RuntimeError):
     pass
 
 
+def _is_privileged_api_key(api_key: str) -> bool:
+    if api_key.startswith("sb_secret_"):
+        return True
+
+    parts = api_key.split(".")
+    if len(parts) != 3:
+        return False
+
+    try:
+        payload_part = parts[1]
+        padding = "=" * (-len(payload_part) % 4)
+        payload = json.loads(
+            base64.urlsafe_b64decode(payload_part + padding).decode("utf-8")
+        )
+    except (binascii.Error, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+        return False
+
+    return payload.get("role") in {"service_role", "supabase_admin"}
+
+
 class SupabaseAuthProvider:
     def __init__(self, *, url: str, api_key: str) -> None:
+        if _is_privileged_api_key(api_key):
+            raise AuthProviderConfigurationError(
+                "La autenticación requiere una clave pública de Supabase."
+            )
+
         self._url = url
         self._api_key = api_key
 
@@ -49,7 +77,7 @@ def build_supabase_auth_provider_from_env() -> SupabaseAuthProvider:
             "Falta SUPABASE_PUBLISHABLE_KEY o SUPABASE_ANON_KEY."
         )
 
-    if api_key.startswith("sb_secret_"):
+    if _is_privileged_api_key(api_key):
         raise AuthProviderConfigurationError(
             "La autenticación requiere una clave pública de Supabase."
         )

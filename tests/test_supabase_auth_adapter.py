@@ -27,6 +27,14 @@ def test_builder_rejects_missing_public_key(monkeypatch):
         build_supabase_auth_provider_from_env()
 
 
+def test_builder_rejects_missing_url(monkeypatch):
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", "publishable-key")
+
+    with pytest.raises(AuthProviderConfigurationError, match="SUPABASE_URL"):
+        build_supabase_auth_provider_from_env()
+
+
 def test_builder_uses_legacy_anon_key_as_fallback(monkeypatch):
     monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
     monkeypatch.delenv("SUPABASE_PUBLISHABLE_KEY", raising=False)
@@ -41,6 +49,27 @@ def test_builder_rejects_secret_key(monkeypatch):
 
     with pytest.raises(AuthProviderConfigurationError, match="clave pública"):
         build_supabase_auth_provider_from_env()
+
+
+def test_builder_rejects_legacy_service_role_key(monkeypatch):
+    service_role_key = (
+        "eyJhbGciOiJIUzI1NiJ9."
+        "eyJyb2xlIjoic2VydmljZV9yb2xlIn0."
+        "signature"
+    )
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_PUBLISHABLE_KEY", service_role_key)
+
+    with pytest.raises(AuthProviderConfigurationError, match="clave pública"):
+        build_supabase_auth_provider_from_env()
+
+
+def test_provider_constructor_rejects_secret_key():
+    with pytest.raises(AuthProviderConfigurationError, match="clave pública"):
+        SupabaseAuthProvider(
+            url="https://example.supabase.co",
+            api_key="sb_secret_forbidden",
+        )
 
 
 def test_authenticate_creates_a_fresh_client_per_attempt(monkeypatch):
@@ -85,4 +114,22 @@ def test_authenticate_rejects_response_without_user(monkeypatch):
     )
 
     with pytest.raises(RuntimeError, match="no devolvió usuario"):
+        provider.authenticate("user@example.org", "secret")
+
+
+def test_authenticate_rejects_response_without_user_id(monkeypatch):
+    client = SimpleNamespace(
+        auth=SimpleNamespace(
+            sign_in_with_password=lambda credentials: SimpleNamespace(
+                user=SimpleNamespace(id="", email=credentials["email"])
+            )
+        )
+    )
+    monkeypatch.setattr(supabase, "create_client", lambda url, key: client)
+    provider = SupabaseAuthProvider(
+        url="https://example.supabase.co",
+        api_key="publishable-key",
+    )
+
+    with pytest.raises(RuntimeError, match="user_id"):
         provider.authenticate("user@example.org", "secret")
