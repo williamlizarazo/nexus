@@ -52,15 +52,23 @@ class OrganizationDirectoryEntry:
     full_name: str | None
     functional_role: str | None
     user_status: str
+    membership_id: str | None = None
     unit_id: str | None = None
     unit_name: str | None = None
     unit_type: str | None = None
+    unit_status: str | None = None
     is_primary: bool = False
+    valid_from: date | None = None
+    valid_to: date | None = None
+    membership_status: str | None = None
 ```
 
 Cada instancia representa una fila de la vista. Por eso un mismo usuario puede
 tener cero, una o varias pertenencias sin introducir estructuras anidadas en
-el contrato de persistencia.
+el contrato de persistencia. Los identificadores, estados y fechas de la
+pertenencia se conservan en el modelo para permitir consultas históricas
+posteriores sin volver a cambiar el contrato, aunque la interfaz V1 no los
+muestre.
 
 ## Contrato y adaptador Supabase
 
@@ -74,14 +82,17 @@ def list_directory_entries(self) -> list[OrganizationDirectoryEntry]:
 
 `SupabaseOrganizationDirectoryRepository` implementará el método consultando
 únicamente `memory_organizational_directory_v`. Seleccionará explícitamente
-`user_id`, `email`, `full_name`, `functional_role`, `user_status`, `unit_id`,
-`unit_name`, `unit_type` e `is_primary`, y ordenará por `full_name`.
+`user_id`, `email`, `full_name`, `functional_role`, `user_status`,
+`membership_id`, `is_primary`, `valid_from`, `valid_to`, `membership_status`,
+`unit_id`, `unit_name`, `unit_type` y `unit_status`, y ordenará por
+`full_name`.
 
-El adaptador convertirá identificadores presentes a `str`, preservará como
-`None` los campos opcionales, usará `active` cuando `user_status` esté vacío y
-usará `False` cuando `is_primary` no esté presente. Una respuesta sin datos
-producirá una lista vacía. Las excepciones del cliente Supabase no se
-convertirán en una lista vacía, porque eso ocultaría una falla operativa.
+El adaptador convertirá identificadores presentes a `str`, convertirá
+`valid_from` y `valid_to` a `date`, preservará como `None` los campos
+opcionales, usará `active` cuando `user_status` esté vacío y usará `False`
+cuando `is_primary` no esté presente. Una respuesta sin datos producirá una
+lista vacía. Las excepciones del cliente Supabase no se convertirán en una
+lista vacía, porque eso ocultaría una falla operativa.
 
 ## Service de `appmemoria`
 
@@ -112,7 +123,7 @@ devolverá una fila de tabla por usuario con estas columnas exactas:
 Las reglas serán:
 
 - `Nombre` usa `full_name`; si está vacío, usa el correo.
-- `Rol funcional` queda vacío cuando no existe.
+- `Rol funcional` muestra `—` cuando no existe.
 - Una entrada sin unidad no genera texto de pertenencia.
 - Las pertenencias se deduplican y se ordenan de forma estable por tipo y
   nombre.
@@ -122,11 +133,12 @@ Las reglas serán:
 - Varias pertenencias se unen con ` · `; por ejemplo,
   `Magistratura: Magistratura A · Dirección: Dirección B`.
 - `Principal` contiene el nombre de la primera unidad marcada como principal
-  en el orden estable; queda vacío si ninguna lo está.
+  en el orden estable; muestra `—` si ninguna lo está.
 - `active` se presenta como `Activo` e `inactive` como `Inactivo`. Un estado
   distinto se conserva como texto legible para no ocultar datos inesperados.
 - Si varias filas del mismo usuario discrepan en nombre, rol o estado, se usa
   el primer valor no vacío en el orden recibido.
+- Si un usuario no tiene pertenencias, `Magistratura / Dirección` muestra `—`.
 
 ## Módulo PyShiny
 
@@ -166,7 +178,8 @@ antes de entrar en el flujo.
 `memory_core` tendrá pruebas unitarias para:
 
 - usuario sin unidad;
-- usuario con unidad, `unit_type` y marca principal;
+- usuario con unidad, metadatos de pertenencia, vigencias, `unit_type` y marca
+  principal;
 - consulta de la vista y selección de columnas;
 - mapeo de varias filas y valores opcionales;
 - respuesta sin datos.
