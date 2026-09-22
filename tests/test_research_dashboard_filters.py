@@ -160,6 +160,7 @@ def test_snapshot_uses_only_the_applied_filter_context(monkeypatch):
         object(),
         object(),
         object(),
+        is_authenticated=lambda: True,
     )
 
     assert "_initialize_context" in effects
@@ -264,6 +265,7 @@ def test_selectors_rebuild_only_when_filters_are_applied(monkeypatch):
             output,
             session,
             object(),
+            is_authenticated=lambda: True,
         )
 
     with test_server(server, timeout_secs=20) as session:
