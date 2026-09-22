@@ -85,6 +85,7 @@ def episodic_server(
     session: Session,
     dependencies: AppDependencies,
     project_id: Callable[[], str],
+    is_authenticated: Callable[[], bool],
 ):
     service = EpisodicService(
         dependencies
@@ -98,6 +99,9 @@ def episodic_server(
 
     @reactive.calc
     def episodes():
+        if not is_authenticated():
+            return []
+
         value = selected_project_id()
 
         if not value:
@@ -130,6 +134,9 @@ def episodic_server(
 
     @reactive.calc
     def detail():
+        if not is_authenticated():
+            return None
+
         episode_id = (
             input.episode_id()
             or ""
@@ -144,6 +151,9 @@ def episodic_server(
 
     @render.text
     def module_status() -> str:
+        if not is_authenticated():
+            return "Autenticación requerida."
+
         if not service.repository_available:
             return service.status_message()
 
