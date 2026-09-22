@@ -40,10 +40,13 @@ from ui import app_root_ui
 def root_ui_for_auth_state(
     state: AuthSessionState,
 ):
+    actor = state.actor
+
     return app_root_ui(
-        is_authenticated=(
-            state.is_authenticated
-        )
+        is_authenticated=state.is_authenticated,
+        is_admin=bool(
+            actor and actor.is_admin
+        ),
     )
 
 

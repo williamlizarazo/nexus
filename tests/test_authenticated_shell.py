@@ -33,3 +33,29 @@ def test_application_shell_can_be_built():
     component = app_shell_ui()
 
     assert component is not None
+
+
+def test_admin_shell_exposes_organizational_directory():
+    html = str(
+        app_shell_ui(
+            is_admin=True
+        )
+    )
+
+    assert "Directorio organizacional" in html
+    assert "organizational_directory" in html
+    assert (
+        "Administración de usuarios y pertenencias "
+        "a Magistraturas y Direcciones."
+    ) in html
+
+
+def test_viewer_shell_hides_organizational_directory():
+    html = str(
+        app_shell_ui(
+            is_admin=False
+        )
+    )
+
+    assert "Directorio organizacional" not in html
+    assert "organizational_directory" not in html

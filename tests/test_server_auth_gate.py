@@ -30,3 +30,34 @@ def test_root_ui_for_authenticated_session_returns_app():
     assert "research_dashboard" in html
     assert "episodic" in html
     assert "auth_actor_summary" in html
+
+
+def test_root_ui_exposes_directory_for_admin_only():
+    admin_state = AuthSessionState.authenticated(
+        AppActor(
+            user_id="admin-001",
+            email="admin@example.org",
+            role="admin",
+        )
+    )
+    viewer_state = AuthSessionState.authenticated(
+        AppActor(
+            user_id="viewer-001",
+            email="viewer@example.org",
+            role="viewer",
+        )
+    )
+
+    admin_html = str(
+        root_ui_for_auth_state(
+            admin_state
+        )
+    )
+    viewer_html = str(
+        root_ui_for_auth_state(
+            viewer_state
+        )
+    )
+
+    assert "organizational_directory" in admin_html
+    assert "organizational_directory" not in viewer_html

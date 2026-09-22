@@ -8,6 +8,9 @@ from modules.authentication.ui import (
 )
 from modules.diagnostics.ui import diagnostics_ui
 from modules.episodic.ui import episodic_ui
+from modules.organizational_directory.ui import (
+    organizational_directory_ui,
+)
 from modules.research_dashboard.ui import (
     research_dashboard_ui,
 )
@@ -46,11 +49,30 @@ def episodic_sidebar_ui():
     )
 
 
-def app_shell_ui():
+def app_shell_ui(
+    *,
+    is_admin: bool = False,
+):
     """
     Shell principal mostrado después
     de autenticar al usuario.
     """
+
+    directory_panel = (
+        (
+            ui.nav_panel(
+                "Directorio organizacional",
+                organizational_directory_ui(
+                    "organizational_directory"
+                ),
+                value=(
+                    "organizational_directory"
+                ),
+            ),
+        )
+        if is_admin
+        else ()
+    )
 
     return ui.page_navbar(
         ui.nav_panel(
@@ -67,6 +89,8 @@ def app_shell_ui():
             ),
             value="episodic",
         ),
+
+        *directory_panel,
 
         ui.nav_spacer(),
 
@@ -92,11 +116,14 @@ def app_shell_ui():
 def app_root_ui(
     *,
     is_authenticated: bool,
+    is_admin: bool = False,
 ):
     if not is_authenticated:
         return authentication_login_ui()
 
-    return app_shell_ui()
+    return app_shell_ui(
+        is_admin=is_admin
+    )
 
 
 app_ui = ui.div(
