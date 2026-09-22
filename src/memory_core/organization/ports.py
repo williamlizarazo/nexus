@@ -2,6 +2,10 @@
 
 from typing import Protocol
 
+from memory_core.domain.organization_directory_entry import (
+    OrganizationDirectoryEntry,
+)
+
 from .models import MemoryUser
 
 
@@ -26,6 +30,11 @@ class OrganizationDirectoryRepository(Protocol):
         status: str | None = None,
         limit: int = 500,
     ) -> list[MemoryUser]:
+        ...
+
+    def list_directory_entries(
+        self,
+    ) -> list[OrganizationDirectoryEntry]:
         ...
 
     def upsert_user(

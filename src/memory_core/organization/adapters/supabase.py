@@ -1,7 +1,11 @@
 ﻿from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
+
+from memory_core.domain.organization_directory_entry import (
+    OrganizationDirectoryEntry,
+)
 
 from ..models import MemoryUser
 
@@ -9,6 +13,12 @@ from ..models import MemoryUser
 USER_COLUMNS = (
     "user_id,email,full_name,functional_role,"
     "status,created_at,updated_at"
+)
+
+DIRECTORY_COLUMNS = (
+    "user_id,email,full_name,functional_role,user_status,"
+    "membership_id,is_primary,valid_from,valid_to,"
+    "membership_status,unit_id,unit_name,unit_type,unit_status"
 )
 
 
@@ -30,6 +40,23 @@ def _parse_datetime(value: Any) -> datetime | None:
         return None
 
 
+def _parse_date(
+    value: Any,
+) -> date | None:
+    if value is None or value == "":
+        return None
+
+    if isinstance(value, datetime):
+        return value.date()
+
+    if isinstance(value, date):
+        return value
+
+    return date.fromisoformat(
+        str(value).strip()
+    )
+
+
 def _memory_user_from_row(
     row: dict[str, Any],
 ) -> MemoryUser:
@@ -41,6 +68,48 @@ def _memory_user_from_row(
         status=str(row.get("status") or "active"),
         created_at=_parse_datetime(row.get("created_at")),
         updated_at=_parse_datetime(row.get("updated_at")),
+    )
+
+
+def _directory_entry_from_row(
+    row: dict[str, Any],
+) -> OrganizationDirectoryEntry:
+    return OrganizationDirectoryEntry(
+        user_id=str(row["user_id"]),
+        email=str(row["email"]),
+        full_name=row.get("full_name"),
+        functional_role=row.get(
+            "functional_role"
+        ),
+        user_status=str(
+            row.get("user_status")
+            or "active"
+        ),
+        membership_id=(
+            str(row["membership_id"])
+            if row.get("membership_id")
+            else None
+        ),
+        unit_id=(
+            str(row["unit_id"])
+            if row.get("unit_id")
+            else None
+        ),
+        unit_name=row.get("unit_name"),
+        unit_type=row.get("unit_type"),
+        unit_status=row.get("unit_status"),
+        is_primary=bool(
+            row.get("is_primary", False)
+        ),
+        valid_from=_parse_date(
+            row.get("valid_from")
+        ),
+        valid_to=_parse_date(
+            row.get("valid_to")
+        ),
+        membership_status=row.get(
+            "membership_status"
+        ),
     )
 
 
@@ -130,6 +199,24 @@ class SupabaseOrganizationDirectoryRepository:
 
         return [
             _memory_user_from_row(row)
+            for row in (response.data or [])
+        ]
+
+    def list_directory_entries(
+        self,
+    ) -> list[OrganizationDirectoryEntry]:
+        response = (
+            self._client
+            .table(
+                "memory_organizational_directory_v"
+            )
+            .select(DIRECTORY_COLUMNS)
+            .order("full_name")
+            .execute()
+        )
+
+        return [
+            _directory_entry_from_row(row)
             for row in (response.data or [])
         ]
 
