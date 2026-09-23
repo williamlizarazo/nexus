@@ -33,3 +33,12 @@ class OrganizationDirectoryEntry:
     valid_to: date | None = None
 
     membership_status: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class OrganizationUnitOption:
+    """Unidad organizacional disponible para asignar a un usuario."""
+
+    unit_id: str
+    name: str
+    unit_type: str

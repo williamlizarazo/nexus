@@ -2,6 +2,7 @@ from datetime import date
 
 from memory_core.domain.organization_directory_entry import (
     OrganizationDirectoryEntry,
+    OrganizationUnitOption,
 )
 
 
@@ -51,3 +52,15 @@ def test_directory_entry_preserves_membership_metadata():
     assert entry.valid_from == date(2026, 1, 1)
     assert entry.valid_to == date(2026, 12, 31)
     assert entry.membership_status == "active"
+
+
+def test_organization_unit_option_preserves_catalog_fields():
+    option = OrganizationUnitOption(
+        unit_id="unit-1",
+        name="Magistratura A",
+        unit_type="magistratura",
+    )
+
+    assert option.unit_id == "unit-1"
+    assert option.name == "Magistratura A"
+    assert option.unit_type == "magistratura"

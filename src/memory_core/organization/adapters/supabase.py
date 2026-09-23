@@ -5,6 +5,7 @@ from typing import Any
 
 from memory_core.domain.organization_directory_entry import (
     OrganizationDirectoryEntry,
+    OrganizationUnitOption,
 )
 
 from ..models import MemoryUser
@@ -219,6 +220,86 @@ class SupabaseOrganizationDirectoryRepository:
             _directory_entry_from_row(row)
             for row in (response.data or [])
         ]
+
+    def list_organizational_units(
+        self,
+    ) -> list[OrganizationUnitOption]:
+        response = (
+            self._client
+            .table("memory_organizational_units")
+            .select("unit_id,name,unit_type,status")
+            .eq("status", "active")
+            .order("unit_type")
+            .order("name")
+            .execute()
+        )
+
+        return [
+            OrganizationUnitOption(
+                unit_id=str(row["unit_id"]),
+                name=str(row["name"]),
+                unit_type=str(row["unit_type"]),
+            )
+            for row in (response.data or [])
+        ]
+
+    def create_organizational_unit(
+        self,
+        *,
+        name: str,
+        unit_type: str,
+    ) -> OrganizationUnitOption:
+        response = (
+            self._client
+            .table("memory_organizational_units")
+            .insert(
+                {
+                    "name": name,
+                    "unit_type": unit_type,
+                    "status": "active",
+                }
+            )
+            .execute()
+        )
+
+        rows = response.data or []
+
+        if not rows:
+            raise RuntimeError(
+                "No fue posible crear la unidad organizacional."
+            )
+
+        row = rows[0]
+
+        return OrganizationUnitOption(
+            unit_id=str(row["unit_id"]),
+            name=str(row["name"]),
+            unit_type=str(row["unit_type"]),
+        )
+
+    def update_directory_user(
+        self,
+        *,
+        user_id: str,
+        full_name: str,
+        functional_role: str,
+        status: str,
+        unit_ids: tuple[str, ...],
+    ) -> None:
+        (
+            self._client
+            .rpc(
+                "memory_update_directory_user",
+                {
+                    "p_user_id": user_id,
+                    "p_full_name": full_name,
+                    "p_functional_role": functional_role,
+                    "p_status": status,
+                    "p_unit_ids": list(unit_ids),
+                },
+            )
+            .execute()
+        )
 
     def upsert_user(
         self,
