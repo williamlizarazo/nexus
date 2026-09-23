@@ -43,7 +43,7 @@ class OrganizationalDirectoryPresenter:
         entries: Iterable[
             OrganizationDirectoryEntry
         ],
-    ) -> list[dict[str, str]]:
+    ) -> list[dict[str, Any]]:
         users: OrderedDict[
             str,
             dict[str, Any],
@@ -110,13 +110,6 @@ class OrganizationalDirectoryPresenter:
                 )
             )
 
-            label = (
-                f"{type_label}: "
-                f"{entry.unit_name}"
-                if type_label
-                else entry.unit_name
-            )
-
             key = (
                 normalized_type,
                 (
@@ -125,47 +118,32 @@ class OrganizationalDirectoryPresenter:
                 ),
             )
 
-            existing = (
-                user["units"].get(key)
-            )
-            previous_primary = (
-                bool(existing[5])
-                if existing
-                else False
-            )
-
             user["units"][key] = (
                 order,
                 type_label.casefold(),
                 entry.unit_name.casefold(),
-                label,
                 entry.unit_name,
-                bool(
-                    entry.is_primary
-                    or previous_primary
-                ),
+                entry.unit_id,
             )
 
         result: list[
-            dict[str, str]
+            dict[str, Any]
         ] = []
 
-        for user in users.values():
+        for user_id, user in users.items():
             units = sorted(
                 user["units"].values()
             )
-            principal = next(
-                (
-                    unit[4]
-                    for unit in units
-                    if unit[5]
-                ),
-                "—",
-            )
             status = user["status"]
+            unit_ids = tuple(
+                unit[4]
+                for unit in units
+                if unit[4]
+            )
 
             result.append(
                 {
+                    "user_id": user_id,
                     "Nombre": (
                         user["name"]
                         or user["email"]
@@ -183,7 +161,6 @@ class OrganizationalDirectoryPresenter:
                         if units
                         else "—"
                     ),
-                    "Principal": principal,
                     "Estado": (
                         cls._STATUS.get(
                             status,
@@ -192,6 +169,9 @@ class OrganizationalDirectoryPresenter:
                             ),
                         )
                     ),
+                    "_unit_ids": unit_ids,
+                    "_functional_role": user["role"],
+                    "_status": status,
                 }
             )
 

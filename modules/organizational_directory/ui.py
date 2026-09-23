@@ -17,12 +17,23 @@ def organizational_directory_ui():
             ),
             class_="text-muted mb-3",
         ),
+        ui.div(
+            ui.input_text(
+                "directory_search",
+                None,
+                placeholder=(
+                    "Buscar por nombre, correo, rol o "
+                    "Magistratura/Dirección..."
+                ),
+            ),
+            class_="mb-3",
+        ),
         ui.output_text(
             "directory_status"
         ),
         ui.card(
             ui.card_header("Usuarios"),
-            ui.output_data_frame(
+            ui.output_ui(
                 "directory_table"
             ),
         ),
