@@ -25,6 +25,9 @@ from modules.diagnostics.server import (
 from modules.episodic.server import (
     episodic_server,
 )
+from modules.organizational_directory.server import (
+    organizational_directory_server,
+)
 from modules.research_dashboard.server import (
     research_dashboard_server,
 )
@@ -50,6 +53,28 @@ def root_ui_for_auth_state(
     )
 
 
+def organizational_directory_is_active(
+    state: AuthSessionState,
+    selected_nav: Callable[
+        [],
+        str | None,
+    ],
+) -> bool:
+    actor = state.actor
+
+    if (
+        not state.is_authenticated
+        or actor is None
+        or not actor.is_admin
+    ):
+        return False
+
+    return (
+        selected_nav()
+        == "organizational_directory"
+    )
+
+
 def create_server(
     dependencies: AppDependencies,
 ):
@@ -71,6 +96,33 @@ def create_server(
                 auth_state.get()
                 .is_authenticated
             )
+
+        def _is_admin() -> bool:
+            actor = auth_state.get().actor
+
+            return bool(
+                actor
+                and actor.is_admin
+            )
+
+        def _organizational_directory_is_active(
+        ) -> bool:
+            return organizational_directory_is_active(
+                auth_state.get(),
+                input.main_nav,
+            )
+
+        organizational_directory_server(
+            "organizational_directory",
+            dependencies,
+            is_authenticated=(
+                _is_authenticated
+            ),
+            is_admin=_is_admin,
+            is_active=(
+                _organizational_directory_is_active
+            ),
+        )
 
         @output
         @render.ui

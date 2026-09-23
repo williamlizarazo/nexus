@@ -17,14 +17,13 @@ def organizational_directory_ui():
             ),
             class_="text-muted mb-3",
         ),
+        ui.output_text(
+            "directory_status"
+        ),
         ui.card(
             ui.card_header("Usuarios"),
-            ui.p(
-                (
-                    "La consulta del directorio organizacional "
-                    "se integrará en este módulo."
-                ),
-                class_="text-muted p-3",
+            ui.output_data_frame(
+                "directory_table"
             ),
         ),
         class_="p-3",

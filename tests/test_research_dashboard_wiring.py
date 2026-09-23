@@ -91,6 +91,12 @@ def test_research_dashboard_server_is_wired_into_app(
 
     monkeypatch.setattr(
         app_server,
+        "organizational_directory_server",
+        lambda *args, **kwargs: None,
+    )
+
+    monkeypatch.setattr(
+        app_server,
         "diagnostics_server",
         lambda *args, **kwargs: None,
     )

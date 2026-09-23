@@ -48,6 +48,14 @@ def test_admin_shell_exposes_organizational_directory():
         "Administración de usuarios y pertenencias "
         "a Magistraturas y Direcciones."
     ) in html
+    assert (
+        "organizational_directory-directory_status"
+        in html
+    )
+    assert (
+        "organizational_directory-directory_table"
+        in html
+    )
 
 
 def test_viewer_shell_hides_organizational_directory():
