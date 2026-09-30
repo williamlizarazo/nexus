@@ -174,6 +174,78 @@ class SupabaseGraphProjectionRepository:
             ),
         )
 
+    def deactivate_nodes(
+        self,
+        node_keys: Sequence[str],
+    ) -> None:
+
+        keys = sorted(
+            {
+                key.strip()
+                for key in node_keys
+                if key
+                and key.strip()
+            }
+        )
+
+        if not keys:
+            return
+
+        (
+            self._client
+            .table("nexus_nodes")
+            .update(
+                {
+                    "active": False,
+                }
+            )
+            .in_(
+                "node_key",
+                keys,
+            )
+            .execute()
+        )
+
+    def deactivate_edges(
+        self,
+        edge_keys: Sequence[
+            tuple[str, str, str]
+        ],
+    ) -> None:
+
+        keys = sorted(
+            set(edge_keys)
+        )
+
+        for (
+            source_key,
+            relation_type,
+            target_key,
+        ) in keys:
+
+            (
+                self._client
+                .table("nexus_edges")
+                .update(
+                    {
+                        "active": False,
+                    }
+                )
+                .eq(
+                    "source_key",
+                    source_key,
+                )
+                .eq(
+                    "relation_type",
+                    relation_type,
+                )
+                .eq(
+                    "target_key",
+                    target_key,
+                )
+                .execute()
+            )
+
     # ============================================================
     # DATABASE HELPERS
     # ============================================================
