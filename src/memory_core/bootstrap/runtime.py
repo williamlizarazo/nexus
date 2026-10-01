@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from memory_core.contracts.episode_repository import (
     EpisodeRepository,
 )
+from memory_core.contracts.nexus_backfill_source import (
+    NexusBackfillSource,
+)
 from memory_core.contracts.research_activity_source import (
     ResearchActivitySource,
 )
@@ -26,5 +29,12 @@ class MemoryRuntime:
 
     episode_repository: EpisodeRepository
     research_activity_source: ResearchActivitySource
-    organization_directory_repository: OrganizationDirectoryRepository | None = None
-    research_project_source: ResearchProjectSource | None = None
+    organization_directory_repository: (
+        OrganizationDirectoryRepository | None
+    ) = None
+    research_project_source: (
+        ResearchProjectSource | None
+    ) = None
+    nexus_backfill_source: (
+        NexusBackfillSource | None
+    ) = None

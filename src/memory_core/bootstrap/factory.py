@@ -8,6 +8,9 @@ from supabase import create_client
 from memory_core.adapters.supabase.episode_repository import (
     SupabaseEpisodeRepository,
 )
+from memory_core.adapters.supabase.nexus_backfill_source import (
+    SupabaseNexusBackfillSource,
+)
 from memory_core.adapters.supabase.research_activity_source import (
     SupabaseResearchActivitySource,
 )
@@ -83,9 +86,14 @@ def build_memory_runtime_from_env(
             SupabaseResearchActivitySource(client)
         ),
         organization_directory_repository=(
-            SupabaseOrganizationDirectoryRepository(client)
+            SupabaseOrganizationDirectoryRepository(
+                client
+            )
         ),
         research_project_source=(
             SupabaseResearchProjectSource(client)
+        ),
+        nexus_backfill_source=(
+            SupabaseNexusBackfillSource(client)
         ),
     )
