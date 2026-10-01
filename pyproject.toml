@@ -16,6 +16,10 @@ supabase = [
     "supabase>=2.0"
 ]
 
+analysis = [
+    "networkx>=3.3"
+]
+
 dev = [
     "pytest>=8.0"
 ]
