@@ -205,6 +205,25 @@ class NexusPresenter:
 
         return rows
 
+    def network_kpis(
+        self,
+        graph_name: str,
+    ) -> dict[str, int | float]:
+
+        _graph, metrics = self._resolve_graph(
+            graph_name
+        )
+
+        return {
+            "nodes": metrics.node_count,
+            "edges": metrics.edge_count,
+            "components": (
+                metrics.connected_component_count
+            ),
+            "isolates": metrics.isolate_count,
+            "density": metrics.density,
+        }
+
     def _resolve_graph(
         self,
         graph_name: str,

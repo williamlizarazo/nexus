@@ -2,3 +2,5 @@ shiny==1.8.0
 python-dotenv>=1.0,<2.0
 pandas>=2.0,<3.0
 supabase>=2.0,<3.0
+networkx>=3.3,<4.0
+ipysigma==0.24.6

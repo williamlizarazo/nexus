@@ -30,6 +30,9 @@ from modules.episodic.server import (
 from modules.organizational_directory.server import (
     organizational_directory_server,
 )
+from modules.nexus.server import (
+    nexus_server,
+)
 from modules.research_dashboard.server import (
     research_dashboard_server,
 )
@@ -198,6 +201,14 @@ def create_server(
             input,
             output,
             session,
+            dependencies,
+            is_authenticated=(
+                _is_authenticated
+            ),
+        )
+
+        nexus_server(
+            "nexus",
             dependencies,
             is_authenticated=(
                 _is_authenticated

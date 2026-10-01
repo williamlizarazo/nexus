@@ -184,3 +184,16 @@ def test_presenter_rejects_unknown_graph():
             "ValueError was expected"
         )
 
+def test_presenter_builds_network_kpis():
+    presenter = NexusPresenter(
+        _analysis()
+    )
+
+    kpis = presenter.network_kpis(
+        "users"
+    )
+
+    assert kpis["nodes"] == 2
+    assert kpis["edges"] == 1
+    assert kpis["components"] == 1
+    assert kpis["isolates"] == 0

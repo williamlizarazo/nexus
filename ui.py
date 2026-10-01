@@ -11,6 +11,7 @@ from modules.episodic.ui import episodic_ui
 from modules.organizational_directory.ui import (
     organizational_directory_ui,
 )
+from modules.nexus.ui import nexus_ui
 from modules.research_dashboard.ui import (
     research_dashboard_ui,
 )
@@ -79,6 +80,12 @@ def app_shell_ui(
             "Panorama de investigación",
             research_dashboard_ui(),
             value="research_dashboard",
+        ),
+
+        ui.nav_panel(
+            "NEXUS",
+            nexus_ui("nexus"),
+            value="nexus",
         ),
 
         ui.nav_panel(
