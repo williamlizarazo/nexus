@@ -17,3 +17,9 @@ nexus_nodes.csv
 nexus_relaciones.csv
 nexus_sigma_test.html
 test_nexus_sigma.py
+
+# NEXUS runtime Sigma renders
+www/nexus/*.html
+
+# NEXUS runtime Sigma renders
+www/nexus/*.html
